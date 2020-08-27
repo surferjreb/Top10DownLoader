@@ -1,10 +1,16 @@
 package com.softcoreinc.top10downloader
 
+import android.content.Context
 import android.os.AsyncTask
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
+import android.view.Menu
+import android.view.MenuItem
+import android.widget.ListView
+import kotlinx.android.synthetic.main.activity_main.*
 import java.net.URL
+import kotlin.properties.Delegates
 
 class FeedEntry {
     var name: String = ""
@@ -13,41 +19,89 @@ class FeedEntry {
     var summary: String = ""
     var imageURL: String = ""
 
-    override fun toString(): String {
-        return """
-            Name: $name
-            Artist: $artist
-            Release Date: $releaseDate
-            Image URL: $imageURL
-        """.trimIndent()
-    }
+//    override fun toString(): String {
+//        return """
+//            Name: $name
+//            Artist: $artist
+//            Release Date: $releaseDate
+//            summary: $summary
+//            Image URL: $imageURL
+//        """.trimMargin().trimIndent()
+//    }
 }
 
 class MainActivity : AppCompatActivity() {
     private val TAG = "MainActivity"
 
+    private var downloadData: DownloadData? = null
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
-        Log.d(TAG, "onCreate Called")
+//        Log.d(TAG, "onCreate Called")
 
-        val downloadData = DownloadData()
-        downloadData.execute("http://ax.itunes.apple.com/WebObjects/MZStoreServices.woa/ws/RSS/topfreeapplications/limit=10/xml")
-        Log.d(TAG, "onCreate: complete")
+        //val downloadData = DownloadData(this, xmlListView)
+        downloadURL("http://ax.itunes.apple.com/WebObjects/MZStoreServices.woa/ws/RSS/topfreeapplications/limit=10/xml")
+//        Log.d(TAG, "onCreate: complete")
 
     }
 
+    override fun onCreateOptionsMenu(menu: Menu?): Boolean {
+        menuInflater.inflate(R.menu.feeds_menu, menu)
+        return true
+    }
+
+    private fun downloadURL(feedURL: String) {
+        downloadData = DownloadData(this, xmlListView)
+        downloadData?.execute(feedURL)
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem?): Boolean {
+
+        val feedURL: String = when (item?.itemId) {
+            R.id.mnuFree -> "http://ax.itunes.apple.com/WebObjects/MZStoreServices.woa/ws/RSS/topfreeapplications/limit=10/xml"
+            R.id.mnuPaid -> "http://ax.itunes.apple.com/WebObjects/MZStoreServices.woa/ws/RSS/toppaidapplications/limit=10/xml"
+            R.id.mnuSongs -> "http://ax.itunes.apple.com/WebObjects/MZStoreServices.woa/ws/RSS/topsongs/limit=10/xml"
+            else -> return super.onOptionsItemSelected(item!!)
+        }
+
+        downloadURL(feedURL)
+        return true
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        downloadData?.cancel(true)
+    }
+
     companion object {
-        private class DownloadData : AsyncTask<String, Void, String>(){
+        private class DownloadData(context: Context, listView: ListView) : AsyncTask<String, Void, String>(){
             private val TAG = "DownloadData"
 
-            override fun onPostExecute(result: String?) {
+            var propContext: Context by Delegates.notNull()
+            var propListView: ListView by Delegates.notNull()
+
+            init {
+                propContext = context
+                propListView = listView
+            }
+
+            override fun onPostExecute(result: String) {
                 super.onPostExecute(result)
-                Log.d(TAG, "onPostExecute: parameter is $result")
+//                Log.d(TAG, "onPostExecute: parameter is $result")
+                val parseApplications = ParseApplications()
+                parseApplications.parse(result)
+                //old adapter
+//                val arrayAdapter = ArrayAdapter<FeedEntry>(propContext, R.layout.list_item, parseApplications.applications)
+//                propListView.adapter = arrayAdapter
+                //new adapter
+                val feedAdapter = FeedAdapter(propContext, R.layout.list_record, parseApplications.applications)
+                propListView.adapter = feedAdapter
+
             }
 
             override fun doInBackground(vararg url: String?): String {
-                Log.d(TAG, "doInBackground: starts with ${url[0]}")
+//                Log.d(TAG, "doInBackground: starts with ${url[0]}")
                 val rssFeed = downloadXML(url[0])
                 if (rssFeed.isEmpty()){
                     Log.d(TAG, "doInBackground: Error downloading")
