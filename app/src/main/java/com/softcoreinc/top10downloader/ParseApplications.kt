@@ -5,11 +5,11 @@ import org.xmlpull.v1.XmlPullParser
 import org.xmlpull.v1.XmlPullParserFactory
 
 class ParseApplications {
-    private val TAG = "ParseApplications"
+    //private val TAG = "ParseApplications"
     var applications = ArrayList<FeedEntry>()
 
     fun parse(xmlData: String): Boolean {
-        Log.d(TAG, "parse called with $xmlData")
+        //Log.d(TAG, "parse called with $xmlData")
         var status = true
         var inEntry = false
         var textValue = ""

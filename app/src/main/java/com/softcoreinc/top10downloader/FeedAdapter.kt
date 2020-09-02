@@ -22,22 +22,22 @@ class FeedAdapter(
     private val applications: List<FeedEntry>
 ) : ArrayAdapter<FeedEntry>(context, resource) {
 
-    private val TAG = "FeedAdapter"
+   // private val TAG = "FeedAdapter"
     private val inflator = LayoutInflater.from(context)
 
     override fun getCount(): Int {
-        Log.d(TAG, "getCount() called")
+       // Log.d(TAG, "getCount() called")
         return applications.size
     }
 
     override fun getView(position: Int, convertView: View?, parent: ViewGroup): View {
 
-        Log.d(TAG, "getView called")
+      //  Log.d(TAG, "getView called")
         val view: View
         val viewHolder: ViewHolder
 
         if (convertView == null) {
-            Log.d(TAG, "getView called with null")
+          //  Log.d(TAG, "getView called with null")
             view = inflator.inflate(resource, parent, false)
             viewHolder = ViewHolder(view)
             view.tag = viewHolder

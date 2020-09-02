@@ -3,11 +3,25 @@
 
     <item
         android:id="@+id/mnuFree"
-        android:title="Free Apps" />
+        android:title="@string/mnu_free" />
     <item
         android:id="@+id/mnuPaid"
-        android:title="Paid Apps" />
+        android:title="@string/mnu_paid" />
     <item
         android:id="@+id/mnuSongs"
-        android:title="Songs" />
+        android:title="@string/mnu_songs" />
+    <group
+        android:id="@+id/mnugrplimit"
+        android:checkableBehavior="single">
+        <item
+            android:id="@+id/menu10"
+            android:checked="true"
+            android:title="@string/top_10" />
+        <item
+            android:id="@+id/menu25"
+            android:title="@string/top_25" />
+    </group>
+    <item
+        android:id="@+id/mnuRefresh"
+        android:title="@string/mnu_refresh" />
 </menu>
